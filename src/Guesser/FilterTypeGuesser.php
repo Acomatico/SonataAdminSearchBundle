@@ -13,10 +13,14 @@ declare(strict_types=1);
 
 namespace Sonata\AdminSearchBundle\Guesser;
 
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Sonata\AdminBundle\Form\Type\Operator\EqualOperatorType;
 use Sonata\AdminBundle\Guesser\TypeGuesserInterface;
 use Sonata\AdminBundle\Model\ModelManagerInterface;
+use Sonata\AdminSearchBundle\Filter\ModelFilter;
 use Sonata\Form\Type\BooleanType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Guess\Guess;
@@ -43,21 +47,19 @@ class FilterTypeGuesser implements TypeGuesserInterface
 
         $options['parent_association_mappings'] = $parentAssociationMappings;
 
-        // FIXME: Try to implement association using elastica
-        /*
         if ($metadata->hasAssociation($propertyName)) {
             $mapping = $metadata->getAssociationMapping($propertyName);
 
             switch ($mapping['type']) {
-                case ClassMetadataInfo::ONE_TO_ONE:
-                case ClassMetadataInfo::ONE_TO_MANY:
-                case ClassMetadataInfo::MANY_TO_ONE:
-                case ClassMetadataInfo::MANY_TO_MANY:
+                case ClassMetadata::ONE_TO_ONE:
+                case ClassMetadata::ONE_TO_MANY:
+                case ClassMetadata::MANY_TO_ONE:
+                case ClassMetadata::MANY_TO_MANY:
 
-                    $options['operator_type']    = 'sonata_type_equal';
+                    $options['operator_type']    = EqualOperatorType::class;
                     $options['operator_options'] = array();
 
-                    $options['field_type']    = 'entity';
+                    $options['field_type']    = EntityType::class;
                     $options['field_options'] = array(
                         'class' => $mapping['targetEntity']
                     );
@@ -65,9 +67,9 @@ class FilterTypeGuesser implements TypeGuesserInterface
                     $options['field_name']   = $mapping['fieldName'];
                     $options['mapping_type'] = $mapping['type'];
 
-                    return new TypeGuess('doctrine_orm_model', $options, Guess::HIGH_CONFIDENCE);
+                    return new TypeGuess(ModelFilter::class, $options, Guess::HIGH_CONFIDENCE);
             }
-        }*/
+        }
 
         $options['field_name'] = $metadata->fieldMappings[$propertyName]['fieldName'];
 
